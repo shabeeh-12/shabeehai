@@ -49,7 +49,7 @@ export default function Home() {
     const newHistory = [...messages, userMsg];
 
     setMessages(newHistory);
-    setLoading(true);
+    Loading(true);
 
     try {
       const res = await fetch('/api/chat', {
@@ -220,6 +220,7 @@ export default function Home() {
           border-radius: 26px;
           overflow: hidden;
           box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+          transition: all 0.3s ease;
         }
 
         .header {
@@ -283,7 +284,6 @@ export default function Home() {
           gap: 12px;
         }
 
-        /* Custom Scrollbar styling for a cleaner look */
         .chat::-webkit-scrollbar {
           width: 6px;
         }
@@ -374,6 +374,7 @@ export default function Home() {
           font-size: 11px;
           color: #0b0f0d;
           font-weight: 600;
+          flex-shrink: 0;
         }
 
         .bubble {
@@ -381,6 +382,7 @@ export default function Home() {
           border-radius: 16px;
           font-size: 14px;
           line-height: 1.6;
+          word-break: break-word;
         }
 
         .bubble.assistant {
@@ -443,6 +445,7 @@ export default function Home() {
           font-size: 14px;
           line-height: 1.4;
           padding: 4px 0;
+          max-height: 140px;
         }
 
         .input-box button {
@@ -458,6 +461,7 @@ export default function Home() {
           justify-content: center;
           font-size: 14px;
           transition: opacity 0.2s;
+          flex-shrink: 0;
         }
 
         .input-box button:disabled {
@@ -470,6 +474,42 @@ export default function Home() {
           font-size: 11px;
           color: rgba(255,255,255,0.4);
           margin-top: 8px;
+        }
+
+        /* 📱 MOBILE RESPONSIVE MEDIA QUERIES */
+        @media (max-width: 768px) {
+          .shell {
+            height: 100dvh;
+            border-radius: 0px;
+            border: none;
+          }
+          
+          .chat {
+            padding: 16px 14px;
+            gap: 10px;
+          }
+
+          .row {
+            max-width: 90%;
+          }
+
+          .bubble {
+            font-size: 14px;
+            padding: 10px 12px;
+          }
+
+          .landing h2 {
+            font-size: 20px;
+          }
+
+          .quick button {
+            padding: 12px 14px;
+            font-size: 13px;
+          }
+          
+          .footer {
+            padding: 10px 12px 14px;
+          }
         }
       `}</style>
     </div>
