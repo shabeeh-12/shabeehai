@@ -49,7 +49,7 @@ export default function Home() {
     const newHistory = [...messages, userMsg];
 
     setMessages(newHistory);
-    Loading(true);
+    setLoading(true); // <-- FIX: Yahan capital L tha, ab theek kar diya hai
 
     try {
       const res = await fetch('/api/chat', {
@@ -175,7 +175,8 @@ export default function Home() {
 
       <style jsx>{`
         .page {
-          height: 100dvh;
+          height: 100vh;
+          height: -webkit-fill-available; /* Mobile safari/chrome viewports fix */
           display: flex;
           justify-content: center;
           align-items: center;
@@ -211,7 +212,8 @@ export default function Home() {
         .shell {
           width: 100%;
           max-width: 720px;
-          height: 96dvh;
+          height: 100%; /* Pure screen size matching */
+          max-height: 96vh;
           display: flex;
           flex-direction: column;
           background: rgba(12, 14, 18, 0.75);
@@ -479,7 +481,8 @@ export default function Home() {
         /* 📱 MOBILE RESPONSIVE MEDIA QUERIES */
         @media (max-width: 768px) {
           .shell {
-            height: 100dvh;
+            height: 100%;
+            max-height: 100vh;
             border-radius: 0px;
             border: none;
           }
