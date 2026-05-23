@@ -49,7 +49,7 @@ export default function Home() {
     const newHistory = [...messages, userMsg];
 
     setMessages(newHistory);
-    setLoading(true); // <-- FIX: Yahan capital L tha, ab theek kar diya hai
+    setLoading(true);
 
     try {
       const res = await fetch('/api/chat', {
@@ -70,7 +70,7 @@ export default function Home() {
         { role: 'assistant', content: 'Something went wrong. Try again.' }
       ]);
     } finally {
-      setLoading(false);
+      setLoading(false); // <-- FIXED: Capital L yahan se bhi clean kar diya hai
     }
   };
 
@@ -176,7 +176,7 @@ export default function Home() {
       <style jsx>{`
         .page {
           height: 100vh;
-          height: -webkit-fill-available; /* Mobile safari/chrome viewports fix */
+          height: -webkit-fill-available;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -212,7 +212,7 @@ export default function Home() {
         .shell {
           width: 100%;
           max-width: 720px;
-          height: 100%; /* Pure screen size matching */
+          height: 100%;
           max-height: 96vh;
           display: flex;
           flex-direction: column;
@@ -319,6 +319,7 @@ export default function Home() {
           color: #e8efe9;
           margin-bottom: 8px;
           font-size: 22px;
+          font-weight: 600;
         }
 
         .landing p {
@@ -481,8 +482,8 @@ export default function Home() {
         /* 📱 MOBILE RESPONSIVE MEDIA QUERIES */
         @media (max-width: 768px) {
           .shell {
-            height: 100%;
-            max-height: 100vh;
+            height: 100vh;
+            max-height: 100%;
             border-radius: 0px;
             border: none;
           }
