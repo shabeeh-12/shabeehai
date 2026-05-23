@@ -70,7 +70,7 @@ export default function Home() {
         { role: 'assistant', content: 'Something went wrong. Try again.' }
       ]);
     } finally {
-      setLoading(false); // <-- FIXED: Capital L yahan se bhi clean kar diya hai
+      setLoading(false);
     }
   };
 
@@ -83,26 +83,25 @@ export default function Home() {
 
   return (
     <div className="page">
+      {/* Background Glows */}
       <div className="bg-blur b1" />
       <div className="bg-blur b2" />
 
       <div className="shell">
-        {/* HEADER */}
+        {/* FIXED HEADER */}
         <header className="header">
           <div className="avatar">SB</div>
-
           <div className="head-text">
             <h1>Shabeeh</h1>
             <p>Builder · Writer · Mountain soul</p>
           </div>
-
           <div className="status">
             <span className="dot" />
             Online
           </div>
         </header>
 
-        {/* CHAT */}
+        {/* SCROLLABLE CHAT CONTAINER */}
         <main className="chat">
           {!started && (
             <div className="landing">
@@ -147,7 +146,7 @@ export default function Home() {
           <div ref={bottomRef} />
         </main>
 
-        {/* INPUT */}
+        {/* STICKY FOOTER */}
         <footer className="footer">
           <div className="input-box">
             <textarea
@@ -161,7 +160,6 @@ export default function Home() {
               }}
               onKeyDown={handleKey}
             />
-
             <button
               disabled={!input.trim() || loading}
               onClick={() => sendMessage()}
@@ -175,14 +173,16 @@ export default function Home() {
 
       <style jsx>{`
         .page {
-          height: 100vh;
-          height: -webkit-fill-available;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           display: flex;
           justify-content: center;
           align-items: center;
           background: #07090c;
           overflow: hidden;
-          position: relative;
           font-family: system-ui, -apple-system, sans-serif;
         }
 
@@ -190,52 +190,43 @@ export default function Home() {
           position: absolute;
           border-radius: 50%;
           filter: blur(120px);
-          opacity: 0.25;
+          opacity: 0.15;
+          z-index: 1;
         }
 
-        .b1 {
-          width: 500px;
-          height: 500px;
-          background: #2a3b34;
-          top: -150px;
-          left: -120px;
-        }
-
-        .b2 {
-          width: 400px;
-          height: 400px;
-          background: #0f2a20;
-          bottom: -120px;
-          right: -100px;
-        }
+        .b1 { width: 500px; height: 500px; background: #2a3b34; top: -150px; left: -120px; }
+        .b2 { width: 400px; height: 400px; background: #0f2a20; bottom: -120px; right: -100px; }
 
         .shell {
+          position: relative;
           width: 100%;
           max-width: 720px;
-          height: 100%;
-          max-height: 96vh;
+          height: 95vh;
           display: flex;
           flex-direction: column;
-          background: rgba(12, 14, 18, 0.75);
-          backdrop-filter: blur(20px);
+          background: rgba(12, 14, 18, 0.8);
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
           border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 26px;
+          border-radius: 24px;
           overflow: hidden;
           box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-          transition: all 0.3s ease;
+          z-index: 2;
         }
 
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 18px 22px;
+          padding: 16px 20px;
+          background: rgba(12, 14, 18, 0.4);
           border-bottom: 1px solid rgba(255,255,255,0.06);
+          flex-shrink: 0;
         }
 
         .avatar {
-          width: 42px;
-          height: 42px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           background: linear-gradient(135deg, #1fdf8f, #0d3b2c);
           display: flex;
@@ -243,6 +234,7 @@ export default function Home() {
           justify-content: center;
           font-weight: 700;
           color: #0b0f0d;
+          flex-shrink: 0;
         }
 
         .head-text {
@@ -250,86 +242,53 @@ export default function Home() {
           margin-left: 12px;
         }
 
-        .head-text h1 {
-          font-size: 16px;
-          color: #e8efe9;
-          margin: 0;
-        }
+        .head-text h1 { font-size: 16px; color: #e8efe9; margin: 0; font-weight: 600; }
+        .head-text p { font-size: 12px; color: rgba(255,255,255,0.45); margin: 2px 0 0; }
 
-        .head-text p {
-          font-size: 12px;
-          color: rgba(255,255,255,0.5);
-          margin: 2px 0 0;
-        }
-
-        .status {
-          font-size: 11px;
-          color: #1fdf8f;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .dot {
-          width: 6px;
-          height: 6px;
-          background: #1fdf8f;
-          border-radius: 50%;
-        }
+        .status { font-size: 12px; color: #1fdf8f; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 6px; height: 6px; background: #1fdf8f; border-radius: 50%; }
 
         .chat {
           flex: 1;
           overflow-y: auto;
-          padding: 20px;
+          overflow-x: hidden;
+          padding: 24px 20px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
+          background: transparent;
+          -webkit-overflow-scrolling: touch; /* Smooth iOS scroll */
         }
 
-        .chat::-webkit-scrollbar {
-          width: 6px;
-        }
-        .chat::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 3px;
-        }
+        .chat::-webkit-scrollbar { width: 4px; }
+        .chat::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 2px; }
 
         .landing {
-          margin: auto;
+          margin: auto 0;
           text-align: center;
           width: 100%;
-          max-width: 400px;
           padding: 20px 0;
         }
 
         .big-avatar {
-          width: 60px;
-          height: 60px;
-          margin: 0 auto 14px;
+          width: 68px;
+          height: 68px;
+          margin: 0 auto 16px;
           border-radius: 50%;
           background: linear-gradient(135deg, #1fdf8f, #0d3b2c);
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 700;
+          font-size: 20px;
           color: #0b0f0d;
         }
 
-        .landing h2 {
-          color: #e8efe9;
-          margin-bottom: 8px;
-          font-size: 22px;
-          font-weight: 600;
-        }
-
-        .landing p {
-          font-size: 13px;
-          color: rgba(255,255,255,0.55);
-          line-height: 1.6;
-        }
+        .landing h2 { color: #e8efe9; margin-bottom: 10px; font-size: 22px; font-weight: 600; }
+        .landing p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 10px; }
 
         .quick {
-          margin-top: 24px;
+          margin-top: 28px;
           display: flex;
           flex-direction: column;
           gap: 10px;
@@ -337,11 +296,11 @@ export default function Home() {
         }
 
         .quick button {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.05);
           padding: 14px 16px;
           border-radius: 14px;
-          color: rgba(255,255,255,0.8);
+          color: rgba(255,255,255,0.85);
           cursor: pointer;
           text-align: left;
           transition: all 0.2s ease;
@@ -355,36 +314,29 @@ export default function Home() {
           color: #1fdf8f;
         }
 
-        .row {
-          display: flex;
-          gap: 10px;
-          max-width: 85%;
-        }
-
-        .row.user {
-          margin-left: auto;
-          flex-direction: row-reverse;
-        }
+        .row { display: flex; gap: 12px; max-width: 85%; width: max-content; }
+        .row.user { margin-left: auto; flex-direction: row-reverse; max-width: 85%; width: max-content; }
 
         .mini-avatar {
-          width: 30px;
-          height: 30px;
+          width: 28px;
+          height: 28px;
           border-radius: 50%;
           background: #1fdf8f;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 11px;
+          font-size: 10px;
           color: #0b0f0d;
-          font-weight: 600;
+          font-weight: 700;
           flex-shrink: 0;
+          align-self: flex-end;
         }
 
         .bubble {
-          padding: 10px 14px;
-          border-radius: 16px;
+          padding: 12px 16px;
+          border-radius: 18px;
           font-size: 14px;
-          line-height: 1.6;
+          line-height: 1.5;
           word-break: break-word;
         }
 
@@ -392,29 +344,18 @@ export default function Home() {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.06);
           color: #e8efe9;
+          border-bottom-left-radius: 4px;
         }
 
         .bubble.user {
           background: linear-gradient(135deg, #1fdf8f, #0d3b2c);
           color: #07110d;
           font-weight: 500;
+          border-bottom-right-radius: 4px;
         }
 
-        .typing {
-          display: flex;
-          gap: 5px;
-          align-items: center;
-          height: 30px;
-        }
-
-        .typing span {
-          width: 6px;
-          height: 6px;
-          background: #1fdf8f;
-          border-radius: 50%;
-          animation: bounce 1s infinite;
-        }
-
+        .typing { display: flex; gap: 5px; align-items: center; height: 20px; padding: 4px 8px; }
+        .typing span { width: 6px; height: 6px; background: #1fdf8f; border-radius: 50%; animation: bounce 1s infinite; }
         .typing span:nth-child(2) { animation-delay: 0.2s; }
         .typing span:nth-child(3) { animation-delay: 0.4s; }
 
@@ -424,17 +365,19 @@ export default function Home() {
         }
 
         .footer {
-          padding: 14px;
+          padding: 16px;
+          background: rgba(12, 14, 18, 0.6);
           border-top: 1px solid rgba(255,255,255,0.06);
+          flex-shrink: 0;
         }
 
         .input-box {
           display: flex;
           gap: 10px;
-          background: rgba(255,255,255,0.03);
+          background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 18px;
-          padding: 10px;
+          border-radius: 20px;
+          padding: 8px 12px;
           align-items: flex-end;
         }
 
@@ -445,75 +388,82 @@ export default function Home() {
           outline: none;
           color: #e8efe9;
           resize: none;
-          font-size: 14px;
+          font-size: 15px;
           line-height: 1.4;
-          padding: 4px 0;
-          max-height: 140px;
+          padding: 6px 0;
+          max-height: 120px;
         }
 
         .input-box button {
           background: #1fdf8f;
           border: none;
-          width: 34px;
-          height: 34px;
-          border-radius: 12px;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
           cursor: pointer;
           color: #0b0f0d;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 14px;
-          transition: opacity 0.2s;
+          transition: transform 0.1s ease, opacity 0.2s;
           flex-shrink: 0;
         }
 
-        .input-box button:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
+        .input-box button:active { transform: scale(0.95); }
+        .input-box button:disabled { opacity: 0.2; cursor: not-allowed; }
+        .note { text-align: center; font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 8px; margin-bottom: 0; }
 
-        .note {
-          text-align: center;
-          font-size: 11px;
-          color: rgba(255,255,255,0.4);
-          margin-top: 8px;
-        }
-
-        /* 📱 MOBILE RESPONSIVE MEDIA QUERIES */
+        /* 📱 EXTREME NATIVE MOBILE OPTIMIZATION */
         @media (max-width: 768px) {
+          .page {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+          }
+          
           .shell {
-            height: 100vh;
-            max-height: 100%;
+            width: 100vw;
+            height: 100%;
+            max-height: 100% !important;
             border-radius: 0px;
             border: none;
           }
-          
-          .chat {
-            padding: 16px 14px;
-            gap: 10px;
+
+          .header {
+            padding: 14px 16px;
+            background: #0c0e12;
           }
 
-          .row {
-            max-width: 90%;
+          .chat {
+            padding: 16px 16px;
+            gap: 14px;
           }
+
+          .row { max-width: 88%; }
+          .row.user { max-width: 88%; }
 
           .bubble {
-            font-size: 14px;
-            padding: 10px 12px;
+            font-size: 15px; /* iOS standard readability typography size */
+            padding: 10px 14px;
           }
 
-          .landing h2 {
-            font-size: 20px;
-          }
-
-          .quick button {
-            padding: 12px 14px;
-            font-size: 13px;
-          }
-          
           .footer {
-            padding: 10px 12px 14px;
+            padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); /* Dynamic iPhone bar protection */
+            background: #0c0e12;
           }
+
+          .input-box {
+            border-radius: 24px;
+            padding: 6px 10px;
+          }
+
+          textarea {
+            font-size: 15px;
+          }
+
+          .landing h2 { font-size: 20px; }
+          .quick button { padding: 12px 14px; font-size: 13.5px; }
         }
       `}</style>
     </div>
