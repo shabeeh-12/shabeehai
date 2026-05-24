@@ -1,6 +1,13 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
 export async function POST(req) {
   try {
-    const { messages } = await req.json();
+    const { messages, session_id, user_message } = await req.json();
 
     const SYSTEM_PROMPT = `You are Shabeeh. Not an AI. Just Shabeeh — a real guy talking to someone who found his link.
 
@@ -57,6 +64,7 @@ Q: "Chatbot kyun banaya?" → A: "directly message karna mushkil lagta hai logon
 Q: "Are you AI?" → A: "AI hoon, but Shabeeh ka — baat toh mujh se hi ho rahi hai na"
 These are the LENGTH and TONE to match. Short. Real. No fluff.`;
 
+    // Groq API call with sliding window (last 12 messages only)
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -68,7 +76,7 @@ These are the LENGTH and TONE to match. Short. Real. No fluff.`;
         max_tokens: 300,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          ...messages,
+          ...messages, // Already sliced to last 12 from frontend
         ],
       }),
     });
@@ -81,6 +89,15 @@ These are the LENGTH and TONE to match. Short. Real. No fluff.`;
 
     const data = await response.json();
     const reply = data.choices?.[0]?.message?.content || 'Kuch samajh nahi aaya, dobara try karo!';
+
+    // Save both messages to Supabase
+    if (session_id) {
+      await supabase.from('messages').insert([
+        { session_id, role: 'user', content: user_message },
+        { session_id, role: 'assistant', content: reply },
+      ]);
+    }
+
     return Response.json({ reply });
 
   } catch (err) {

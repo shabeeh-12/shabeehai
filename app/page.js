@@ -68,6 +68,9 @@ export default function Home() {
     const msg = (text || input).trim();
     if (!msg || loading) return;
 
+    // Direct localStorage se lo — sessionId state empty ho sakti hai pehle message pe
+    const currentSessionId = sessionId || localStorage.getItem('chat_session_id');
+
     setInput('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setStarted(true);
@@ -84,7 +87,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: newHistory.slice(-12), // Sliding window — last 12 only
-          session_id: sessionId,
+          session_id: currentSessionId,
           user_message: msg,
         }),
       });
