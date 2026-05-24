@@ -22,9 +22,36 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
+  const [sessionId, setSessionId] = useState('');
 
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Session ID + load previous messages
+  useEffect(() => {
+    let id = localStorage.getItem('chat_session_id');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('chat_session_id', id);
+    }
+    setSessionId(id);
+
+    // Load previous messages from DB
+    const loadHistory = async () => {
+      try {
+        const res = await fetch(`/api/history?session_id=${id}`);
+        const data = await res.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+          setStarted(true);
+        }
+      } catch (err) {
+        console.error('History load failed:', err);
+      }
+    };
+
+    loadHistory();
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -55,15 +82,17 @@ export default function Home() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newHistory }),
+        body: JSON.stringify({
+          messages: newHistory.slice(-12), // Sliding window — last 12 only
+          session_id: sessionId,
+          user_message: msg,
+        }),
       });
 
       const data = await res.json();
+      const assistantMsg = { role: 'assistant', content: data.reply };
 
-      setMessages([
-        ...newHistory,
-        { role: 'assistant', content: data.reply }
-      ]);
+      setMessages([...newHistory, assistantMsg]);
     } catch {
       setMessages([
         ...newHistory,
@@ -83,12 +112,10 @@ export default function Home() {
 
   return (
     <div className="page">
-      {/* Dynamic Ambient Blur Backgrounds */}
       <div className="bg-blur b1" />
       <div className="bg-blur b2" />
 
       <div className="shell">
-        {/* FIXED HEADER */}
         <header className="header">
           <div className="header-left">
             <div className="avatar">SB</div>
@@ -103,7 +130,6 @@ export default function Home() {
           </div>
         </header>
 
-        {/* 💬 WHATSAPP STYLE CHAT CANVAS */}
         <main className="chat">
           {!started && (
             <div className="landing">
@@ -113,13 +139,9 @@ export default function Home() {
                 A space for thoughts, ideas, and conversations.<br />
                 No pressure; just talk naturally.
               </p>
-
               <div className="quick">
                 {QUICK.map((q) => (
-                  <button
-                    key={q.label}
-                    onClick={() => sendMessage(q.msg)}
-                  >
+                  <button key={q.label} onClick={() => sendMessage(q.msg)}>
                     {q.label}
                   </button>
                 ))}
@@ -148,7 +170,6 @@ export default function Home() {
           <div ref={bottomRef} />
         </main>
 
-        {/* STICKY BOTTOM INPUT CONTROLLER */}
         <footer className="footer">
           <div className="input-box">
             <textarea
@@ -169,7 +190,7 @@ export default function Home() {
               ➤
             </button>
           </div>
-          <p className="note">Private conversation · no data stored</p>
+          <p className="note">Private conversation · messages saved for continuity</p>
         </footer>
       </div>
 
@@ -246,15 +267,15 @@ export default function Home() {
         .dot { width: 6px; height: 6px; background: #1fdf8f; border-radius: 50%; }
 
         .chat {
-  flex: 1;
-  overflow-y: auto;
-  padding: 40px 20px 30px 20px; /* Pehli value (40px) ko barha diya hai taake pehla message header se kaafi neeche aaye */
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: transparent;
-  -webkit-overflow-scrolling: touch;
-}
+          flex: 1;
+          overflow-y: auto;
+          padding: 40px 20px 30px 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          background: transparent;
+          -webkit-overflow-scrolling: touch;
+        }
 
         .chat::-webkit-scrollbar { width: 4px; }
         .chat::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 2px; }
@@ -323,7 +344,6 @@ export default function Home() {
         .input-box button:disabled { opacity: 0.2; cursor: not-allowed; }
         .note { text-align: center; font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 8px; margin-bottom: 0; }
 
-        /* 📱 IN-APP BROWSER SCROLL FIX */
         @media (max-width: 768px) {
           .page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
           .shell {
@@ -333,19 +353,10 @@ export default function Home() {
             border-radius: 0px;
             border: none;
           }
-          .header {
-            padding: 14px 16px;
-            background: #090c10;
-          }
-.chat {
-  padding: 50px 14px 40px 14px; /* Mobile par pehla message top se 50px neeche shuru hoga */
-  gap: 14px;
-}
+          .header { padding: 14px 16px; background: #090c10; }
+          .chat { padding: 50px 14px 40px 14px; gap: 14px; }
           .bubble { max-width: 85%; font-size: 15px; }
-          .footer {
-            padding: 10px 12px calc(16px + env(safe-area-inset-bottom));
-            background: #090c10;
-          }
+          .footer { padding: 10px 12px calc(16px + env(safe-area-inset-bottom)); background: #090c10; }
         }
       `}</style>
     </div>
